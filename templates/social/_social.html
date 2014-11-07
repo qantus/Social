@@ -1,0 +1,7 @@
+<ul class="social-list">
+    {% for name, provider in providers %}
+        <li>
+            <a rel="nofollow" target="_blank" class="link-button" href="{{ provider.getAuthUrl() }}">{{ name }}</a>
+        </li>
+    {% endfor %}
+</ul>
