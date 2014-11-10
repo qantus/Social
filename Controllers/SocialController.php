@@ -14,8 +14,10 @@
 
 namespace Modules\Social\Controllers;
 
+use Exception;
 use Mindy\Base\Mindy;
-use Mindy\SocialAuth\Adapter\BaseAdapter;
+use Mindy\OAuth1\Provider as OAuth1Provider;
+use Mindy\OAuth2\Provider as OAuth2Provider;
 use Modules\Core\Controllers\CoreController;
 use Modules\Social\Models\SocialProfile;
 use Modules\User\Models\User;
@@ -27,31 +29,29 @@ class SocialController extends CoreController
         /** @var \Mindy\SocialAuth\SocialAuth $social */
         $social = $this->getModule()->getComponent('social');
         $provider = $social->getProvider($provider);
-        $status = $provider->authenticate();
-        $app = Mindy::app();
-        if ($status) {
+        if ($provider->process()) {
+            $app = Mindy::app();
             $user = $this->processProvider($provider);
             $app->auth->login($user);
             echo $this->render("social/_close.html");
-        } else {
-            $this->r->redirect($app->getModule('User')->getLoginUrl());
         }
     }
 
     /**
-     * @param BaseAdapter $provider
+     * @param \Mindy\SocialAuth\Provider\OAuth1Provider|\Mindy\SocialAuth\Provider\OAuth2Provider $provider
+     * @throws \Exception
      * @return \Modules\User\Models\User
      */
-    protected function processProvider(BaseAdapter $provider)
+    protected function processProvider($provider)
     {
         $profile = SocialProfile::objects()->filter([
             'social_id' => $provider->getSocialId(),
-            'info' => $provider->getInfo(),
         ])->get();
 
         if ($profile === null) {
             $email = $provider->getEmail();
             $password = substr(md5($provider->getSocialId()), 10);
+
             if (!is_null($email)) {
                 $user = User::objects()->filter(['email' => $email])->get();
                 if ($user === null) {
@@ -70,7 +70,7 @@ class SocialController extends CoreController
 
             SocialProfile::objects()->create([
                 'social_id' => $provider->getSocialId(),
-                'info' => $provider->getInfo(),
+                'info' => $provider->getUserInfo(),
                 'user' => $user
             ]);
         } else {
