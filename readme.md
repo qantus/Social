@@ -61,3 +61,23 @@
 ```
 
 Далее использовать в шаблоне в любом месте хелпер `{{ social() }}`
+
+
+### Авторизация в popup
+
+```js
+function openPopup(url, width, height, left, top) {
+    width = width || 700;
+    height = height || 500;
+    left = left || (window.screen.availWidth / 2) - (width / 2);
+    top = top || (window.screen.availHeight / 2) - (height / 2);
+    var settings = 'height=' + height + ',width=' + width + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=yes,directories=no,status=yes';
+    window.open(url, name, settings);
+}
+
+$(document).on('click', '.social-list a', function(e) {
+    e.preventDefault();
+    openPopup($(this).attr('href'));
+    return false;
+});
+```
