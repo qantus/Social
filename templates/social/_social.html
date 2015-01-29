@@ -1,7 +1,7 @@
 <ul class="social-list">
     {% for name, provider in providers %}
         <li>
-            <a rel="nofollow" target="_blank" href="{% url 'social.auth' name %}">
+            <a rel="nofollow" target="_blank" href="{% url 'social:auth' name %}">
                 <i class="social-{{ name }}-circle"></i> {{ name }}
             </a>
         </li>
